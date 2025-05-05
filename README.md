@@ -41,7 +41,7 @@
 
 ## 📷 Video
 
-https://drive.google.com/file/d/1gUoyNtWCDOh9wYnXFoEgbdO65UYro0NX/view?usp=sharing"><img src="https://img.shields.io/badge/Watch-Demo%20Video-red?style=for-the-badge&logo=youtube
+https://drive.google.com/file/d/1gUoyNtWCDOh9wYnXFoEgbdO65UYro0NX/view?usp=sharing">
 
 ---
 
