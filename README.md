@@ -39,11 +39,9 @@
 
 ---
 
-## 📷 Screenshots
+## 📷 Video
 
-| Symptom Checker | Pharmacy Map | Doctor Chat |
-|:---------------:|:------------:|:-----------:|
-| ![Symptom](https://i.imgur.com/bXv4Wce.png) | ![Pharmacy](https://i.imgur.com/ih3X8LZ.png) | ![Chat](https://i.imgur.com/qfMaqNU.png) |
+https://drive.google.com/file/d/1gUoyNtWCDOh9wYnXFoEgbdO65UYro0NX/view?usp=sharing"><img src="https://img.shields.io/badge/Watch-Demo%20Video-red?style=for-the-badge&logo=youtube
 
 ---
 
