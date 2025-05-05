@@ -38,9 +38,12 @@
 - Manage users, doctors, predictions, and medical logs in a secure interface.
 
 ---
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DwRa3-fKCvI?autoplay=1&mute=1" 
+title="YouTube video player" frameborder="0" 
+allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 ## 📷 Video
-https://youtu.be/DwRa3-fKCvI
+
 https://drive.google.com/file/d/1gUoyNtWCDOh9wYnXFoEgbdO65UYro0NX/view?usp=sharing">
 
 ---
