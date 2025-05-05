@@ -38,9 +38,11 @@
 - Manage users, doctors, predictions, and medical logs in a secure interface.
 
 ---
-[![Watch the Demo](https://img.youtube.com/vi/DwRa3-fKCvI/maxresdefault.jpg)](https://www.youtube.com/watch?v=DwRa3-fKCvI)
+
 
 ## 📷 Video
+
+[![Watch the Demo](https://img.youtube.com/vi/DwRa3-fKCvI/maxresdefault.jpg)](https://www.youtube.com/watch?v=DwRa3-fKCvI)
 
 https://drive.google.com/file/d/1gUoyNtWCDOh9wYnXFoEgbdO65UYro0NX/view?usp=sharing">
 
