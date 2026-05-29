@@ -91,6 +91,62 @@
         margin-right: 8px; /* Space between icon and text */
         color: #1b405a; /* Icon color */
     }
+
+    .feature-card {
+        min-height: 170px;
+        border: 0;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(27, 64, 90, 0.12);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: linear-gradient(180deg, #ffffff 0%, #f4f8fb 100%);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 36px rgba(27, 64, 90, 0.18);
+    }
+
+    .feature-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .feature-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1b405a, #12b5a6);
+        color: #ffffff;
+        font-size: 22px;
+        box-shadow: 0 10px 24px rgba(18, 181, 166, 0.18);
+    }
+
+    .feature-title {
+        color: #14273a;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .feature-text {
+        color: #4d5f6d;
+        margin-bottom: 0;
+    }
+
+    .stat-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(27, 64, 90, 0.08);
+        color: #1b405a;
+        font-weight: 700;
+        font-size: 13px;
+    }
             /* Footer Styling */
             .footer {
             background-color: rgb(0, 0, 0, 0.9);
@@ -167,35 +223,103 @@
     </div>
 
         <div class="col-md-6">
-            <div class="tools-section"> <!-- Added div for tools section -->
-              <h3 style="font-weight: bold;">
-                <i class="fas fa-tools tool-icon"></i> Tools
+            <div class="tools-section">
+              <h3 style="font-weight: bold; margin-bottom: 18px;">
+                <i class="fas fa-tools tool-icon"></i> Tools & Insights
             </h3>
                 <div class="row">
-                    <a id="links" class="btn" href="{% url 'checkdisease' %}">
-                        <i class="fas fa-stethoscope tool-icon"></i> Check Disease
-                    </a>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-stethoscope"></i></div>
+                                    <h5 class="feature-title mt-3">Check Disease</h5>
+                                    <p class="feature-text">Run the ML symptom checker and get a disease suggestion instantly.</p>
+                                </div>
+                                <a id="links" class="btn" href="{% url 'checkdisease' %}">Open checker</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-pills"></i></div>
+                                    <h5 class="feature-title mt-3">Alternative Drugs</h5>
+                                    <p class="feature-text">View safer or alternative medication suggestions for a medicine.</p>
+                                </div>
+                                <a class="btn" href="{% url 'alternative_drugs' %}">View alternatives</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <h5 class="feature-title mt-3">Nearby Pharmacy</h5>
+                                    <p class="feature-text">Open a pharmacy finder with map search and location support.</p>
+                                </div>
+                                <a class="btn" href="{% url 'nearby_pharmacy' %}">Find pharmacies</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                                    <h5 class="feature-title mt-3">Bot Assistant</h5>
+                                    <p class="feature-text">Ask the FirstCall AI Assistant about symptoms, drugs, or next steps.</p>
+                                </div>
+                                <button class="btn" type="button" data-toggle="modal" data-target="#ai-assistant-modal">Open assistant</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                                    <h5 class="feature-title mt-3">High Accuracy</h5>
+                                    <p class="feature-text">The trained model reaches a reported accuracy of 94.8%.</p>
+                                </div>
+                                <span class="stat-badge">94.8% accuracy</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                    <h5 class="feature-title mt-3">Good Performance</h5>
+                                    <p class="feature-text">Fast local inference, lightweight UI, and quick access to core tools.</p>
+                                </div>
+                                <span class="stat-badge">Optimized for demo speed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div>
+                                    <div class="feature-icon"><i class="fas fa-history"></i></div>
+                                    <h5 class="feature-title mt-3">Consultation History</h5>
+                                    <p class="feature-text">Review your previous predictions and consultations in one place.</p>
+                                </div>
+                                <a class="btn" href="{% url 'pconsultation_history' %}">Open history</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
-                    <a class="btn" href="{% url 'pconsultation_history' %}">
-                        <i class="fas fa-history tool-icon"></i> View Consultation History
-                    </a>
+                    <div class="col">
+                        <button class="btn" data-toggle="modal" data-target="#myModal-feedback">
+                            <i class="fas fa-comment-dots tool-icon"></i> Give Feedback
+                        </button>
+                    </div>
                 </div>
-                <div class="row">
-                    <button class="btn" data-toggle="modal" data-target="#myModal-feedback">
-                        <i class="fas fa-comment-dots tool-icon"></i> Give Feedback
-                    </button>
-                </div>
-                <div class="row">
-                    <a class="btn" href="{% url 'alternative_drugs' %}">
-                        <i class="fas fa-pills tool-icon"></i> Alternative Drugs
-                    </a>
-                </div>
-                <div class="row">
-                  <a class="btn" href="{% url 'alternative_drugs' %}">
-                      <i class="fas fa-map-marker-alt tool-icon"></i> Nearby Pharmacists
-                  </a>
-              </div>
                 <br>
             </div>
         </div>

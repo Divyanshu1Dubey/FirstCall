@@ -25,8 +25,11 @@ urlpatterns = [
     path('post', views.post, name='post'),
     path('chat_messages', views.chat_messages, name='chat_messages'),
 
+    path('ai-assistant/', views.ai_assistant, name='ai_assistant'),
+    path('nearby-pharmacy/', views.nearby_pharmacy, name='nearby_pharmacy'),
+
     # New URL for Alternative Drugs
-    path('alternative_drugs', views.AlternativeDrug, name='alternative_drugs'),
+    path('alternative_drugs', views.alternative_drugs_page, name='alternative_drugs'),
 
     path('api/disease/<str:disease_name>/', get_disease_info, name='get_disease_info'),
 ]

@@ -98,6 +98,182 @@
             padding-left: 0; /* Remove left padding */
             padding-right: 0; /* Remove right padding */
         }
+
+        .ai-assistant-launcher {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 64px;
+            height: 64px;
+            border: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #5c6cff 0%, #12b5a6 100%);
+            color: #ffffff;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+            z-index: 1060;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .ai-assistant-modal .modal-dialog {
+            max-width: 420px;
+        }
+
+        .ai-assistant-modal .modal-content.ai-assistant-panel {
+            border: 0;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0b1324 0%, #101a2f 100%) !important;
+            color: #f5f7fb !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+        }
+
+        .ai-assistant-header {
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(92, 108, 255, 0.40), rgba(18, 181, 166, 0.28));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ai-assistant-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .ai-assistant-subtitle {
+            font-size: 12px;
+            opacity: 0.75;
+            margin: 2px 0 0;
+        }
+
+        .ai-assistant-close {
+            border: 0;
+            background: transparent;
+            color: #f5f7fb;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .ai-assistant-body {
+            padding: 18px;
+            background: #0f172a;
+        }
+
+        .ai-assistant-suggestions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .ai-assistant-chip {
+            border: 1px solid rgba(110, 169, 255, 0.25);
+            background: rgba(255, 255, 255, 0.06);
+            color: #f5f7fb;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .ai-assistant-chip:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .ai-assistant-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            max-height: 360px;
+            padding-right: 4px;
+            margin-bottom: 12px;
+        }
+
+        .ai-message {
+            padding: 10px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .ai-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #5c6cff, #12b5a6);
+            color: #ffffff;
+            max-width: 88%;
+        }
+
+        .ai-message.assistant {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            color: #f5f7fb;
+            max-width: 88%;
+        }
+
+        .ai-message.meta {
+            font-size: 11px;
+            opacity: 0.7;
+            padding-top: 0;
+        }
+
+        .ai-assistant-input-group {
+            margin-top: 12px;
+        }
+
+        .ai-assistant-input-group .form-control {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f5f7fb;
+            border-color: rgba(110, 169, 255, 0.22);
+            height: 48px;
+        }
+
+        .ai-assistant-input-group .form-control::placeholder {
+            color: rgba(245, 247, 251, 0.70);
+        }
+
+        .ai-assistant-input-group .btn {
+            background: linear-gradient(135deg, #12b5a6, #0ea5e9);
+            border-color: #12b5a6;
+            color: #ffffff;
+            min-width: 90px;
+        }
+
+        .ai-assistant-input-group .btn:hover {
+            color: #ffffff;
+            filter: brightness(1.05);
+        }
+
+        .ai-assistant-modal .modal-body,
+        .ai-assistant-modal .modal-content {
+            background: transparent;
+        }
+
+        @media (max-width: 576px) {
+            .ai-assistant-panel {
+                right: 12px;
+                left: 12px;
+                bottom: 92px;
+                width: auto;
+            }
+
+            .ai-assistant-launcher {
+                right: 12px;
+                bottom: 12px;
+            }
+        }
     </style>
 
     {% block head %}{% endblock %}
@@ -145,8 +321,8 @@
                                     style="color: rgb(247, 190, 188);">Log out</button>
                         </li>
                     {% else %}
-                        <li class="nav-item ml-2"><a class="nav-link" data-toggle="modal" data-target=".bd-example-modal-lg2">Signup</a></li>
-                        <li class="nav-item ml-2"><a class="nav-link" data-toggle="modal" data-target=".bd-example-modal-lg">Signin</a></li>
+                        <li class="nav-item ml-2"><a class="nav-link" href="{% url 'signup_patient' %}">Signup</a></li>
+                        <li class="nav-item ml-2"><a class="nav-link" href="{% url 'sign_in_patient' %}">Signin</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -172,6 +348,41 @@
         {% block body %}{% endblock %}
     </div>
 
+    <button id="ai-assistant-launcher" class="ai-assistant-launcher" type="button" data-toggle="modal" data-target="#ai-assistant-modal" aria-label="Open FirstCall AI Assistant">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <div class="modal fade ai-assistant-modal" id="ai-assistant-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div id="ai-assistant-panel" class="modal-content ai-assistant-panel" role="dialog" aria-label="FirstCall AI Assistant">
+                <div class="ai-assistant-header">
+            <div>
+                <p class="ai-assistant-title">FirstCall AI Assistant</p>
+                <p class="ai-assistant-subtitle">Powered by Gemini or Groq with safe healthcare guidance</p>
+            </div>
+                <button id="ai-assistant-close" class="ai-assistant-close" type="button" data-dismiss="modal" aria-label="Close assistant">&times;</button>
+                </div>
+                <div class="ai-assistant-body">
+                    <div class="ai-assistant-suggestions">
+                        <button class="ai-assistant-chip" type="button" data-prompt="I have fever, cough, and headache for 2 days. What should I do?">Symptom check</button>
+                        <button class="ai-assistant-chip" type="button" data-prompt="What are alternatives to paracetamol?">Drug alternatives</button>
+                        <button class="ai-assistant-chip" type="button" data-prompt="Which nearby pharmacy has ibuprofen in stock?">Find pharmacy</button>
+                        <button class="ai-assistant-chip" type="button" data-prompt="How do I use this app to consult a doctor?">Site guide</button>
+                    </div>
+
+                    <div id="ai-assistant-messages" class="ai-assistant-messages" aria-live="polite"></div>
+
+                    <div class="input-group ai-assistant-input-group">
+                        <input id="ai-assistant-input" type="text" class="form-control" placeholder="Ask about symptoms, drugs, or next steps..." autocomplete="off">
+                        <div class="input-group-append">
+                            <button id="ai-assistant-send" class="btn" type="button">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
             crossorigin="anonymous"></script>
@@ -181,15 +392,90 @@
     <script src="{% static 'signin_page/js/know.js' %}"></script>
 
     <script type="text/javascript">
-        (function(d, m){
-            var kommunicateSettings = 
-                {"appId":"2ce235ba647ca152b6e46d0258882cd39","popupWidget":true,"automaticChatOpenOnNavigation":true};
-            var s = document.createElement("script"); s.type = "text/javascript"; s.async = true;
-            s.src = "https://widget.kommunicate.io/v2/kommunicate.app";
-            var h = document.getElementsByTagName("head")[0]; h.appendChild(s);
-            window.kommunicate = m; m._globals = kommunicateSettings;
-        })(document, window.kommunicate || {});
-    /* NOTE : Use web server to view HTML files as real-time update will not work if you directly open the HTML file in the browser. */
+        (function () {
+            const endpoint = "{% url 'ai_assistant' %}";
+            const launcher = document.getElementById('ai-assistant-launcher');
+            const panel = document.getElementById('ai-assistant-panel');
+            const messages = document.getElementById('ai-assistant-messages');
+            const input = document.getElementById('ai-assistant-input');
+            const sendButton = document.getElementById('ai-assistant-send');
+            const chips = panel ? panel.querySelectorAll('[data-prompt]') : [];
+
+            if (!launcher || !panel || !messages || !input || !sendButton) {
+                return;
+            }
+
+            function appendMessage(text, kind, metaText) {
+                const message = document.createElement('div');
+                message.className = `ai-message ${kind}`;
+                message.textContent = text;
+                messages.appendChild(message);
+
+                if (metaText) {
+                    const meta = document.createElement('div');
+                    meta.className = 'ai-message meta';
+                    meta.textContent = metaText;
+                    messages.appendChild(meta);
+                }
+
+                messages.scrollTop = messages.scrollHeight;
+                return message;
+            }
+
+            async function askAssistant(question) {
+                const trimmed = question.trim();
+                if (!trimmed) {
+                    return;
+                }
+
+                appendMessage(trimmed, 'user');
+                input.value = '';
+
+                const pending = appendMessage('Thinking...', 'assistant');
+
+                try {
+                    const response = await fetch(`${endpoint}?message=${encodeURIComponent(trimmed)}`);
+                    const data = await response.json();
+                    pending.remove();
+
+                    if (!response.ok) {
+                        appendMessage(data.error || 'Unable to reach the assistant right now.', 'assistant');
+                        return;
+                    }
+
+                    appendMessage(data.reply || 'No response returned.', 'assistant', `Model: ${data.provider || 'unknown'}`);
+                } catch (error) {
+                    pending.remove();
+                    appendMessage('The assistant is temporarily unavailable. Please try again in a moment.', 'assistant');
+                }
+            }
+
+            $('#ai-assistant-modal').on('shown.bs.modal', function () {
+                input.focus();
+            });
+
+            sendButton.addEventListener('click', function () {
+                askAssistant(input.value);
+            });
+
+            input.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    askAssistant(input.value);
+                }
+            });
+
+            chips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    askAssistant(chip.getAttribute('data-prompt') || '');
+                });
+            });
+
+            appendMessage(
+                'Hello, I am FirstCall AI. Ask me about symptoms, medicines, nearby pharmacies, or how to consult a doctor.\n\nTry: "alternative of paracetamol" or "I have fever for 3 days".',
+                'assistant'
+            );
+        })();
     </script>
             
 </body>

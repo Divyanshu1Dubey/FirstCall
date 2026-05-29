@@ -1,0 +1,293 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+    body { background: linear-gradient(180deg, #f4f8fb 0%, #e8eef6 100%); color: #1b405a; }
+
+    .pharmacy-hero { padding: 50px 20px 20px; text-align: center; }
+    .pharmacy-hero h1 { font-weight: 800; color: #1b405a; margin-bottom: 8px; }
+    .pharmacy-hero p  { color: #516678; max-width: 720px; margin: 0 auto; }
+
+    .pharmacy-card, .results-card, .tip-card {
+        border: 0; border-radius: 20px;
+        box-shadow: 0 16px 36px rgba(27,64,90,.12); overflow: hidden;
+    }
+    .pharmacy-card .card-header,
+    .results-card .card-header,
+    .tip-card .card-header {
+        background: linear-gradient(135deg, #1b405a, #12b5a6);
+        color: #fff; font-weight: 700; font-size: 16px;
+    }
+
+    .pharmacy-actions .btn, .search-chip {
+        background: linear-gradient(135deg, #1b405a, #0ea5e9);
+        color: #fff; border: 0; font-weight: 700; border-radius: 12px;
+    }
+    .pharmacy-actions .btn:hover, .search-chip:hover {
+        color: #fff; filter: brightness(1.08);
+    }
+
+    .pharmacy-result {
+        background: #fff; border-radius: 16px; padding: 16px 18px;
+        margin-bottom: 12px; box-shadow: 0 8px 20px rgba(27,64,90,.08);
+        border-left: 4px solid #12b5a6;
+    }
+    .pharmacy-result h5 { color: #1b405a; font-weight: 800; margin-bottom: 4px; }
+    .pharmacy-result p  { color: #516678; margin-bottom: 4px; font-size: 14px; }
+    .pharmacy-result .badge-open  { background: #d4edda; color: #155724; }
+    .pharmacy-result .badge-24    { background: #cce5ff; color: #004085; }
+
+    .status-badge {
+        display: inline-block; padding: 5px 12px; border-radius: 999px;
+        background: rgba(27,64,90,.08); color: #1b405a; font-weight: 700; font-size: 13px;
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+    /* Map */
+    #pharmacy-map {
+        height: 380px; width: 100%; border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(27,64,90,.14);
+        margin-bottom: 20px; z-index: 1;
+    }
+
+    .map-legend {
+        display: flex; gap: 16px; flex-wrap: wrap;
+        font-size: 13px; color: #516678; margin-bottom: 10px;
+    }
+    .map-legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot-green  { background: #12b5a6; }
+    .dot-grey   { background: #adb5bd; }
+
+    .no-results-box {
+        background: #fff3cd; border-radius: 14px; padding: 18px;
+        border-left: 4px solid #ffc107; color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="pharmacy-hero">
+        <h1><i class="fas fa-map-marker-alt mr-2"></i>Nearby Pharmacy Finder</h1>
+        <p>Search a medicine to see which local pharmacies have it in stock — shown on the map and listed below. No redirect to Google Maps.</p>
+    </div>
+
+    <!-- Search form -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card pharmacy-card">
+                <div class="card-header"><i class="fas fa-search mr-2"></i>Search pharmacy stock</div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'nearby_pharmacy' %}">
+                        <div class="form-row">
+                            <div class="col-md-5 mb-3">
+                                <input type="text" class="form-control form-control-lg"
+                                       name="drug" value="{{ drug_query }}"
+                                       placeholder="Medicine name, e.g. paracetamol">
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <input type="text" class="form-control form-control-lg"
+                                       name="area" value="{{ area_query }}"
+                                       placeholder="Area or locality (optional)">
+                            </div>
+                            <div class="col-md-2 pharmacy-actions mb-3">
+                                <button type="submit" class="btn btn-block btn-lg">
+                                    <i class="fas fa-search"></i> Find
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="pill-row">
+                        {% for item in suggested_drugs %}
+                            <a class="search-chip btn btn-sm px-3 py-2"
+                               href="{% url 'nearby_pharmacy' %}?drug={{ item|urlencode }}">{{ item }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map + Results -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mb-4">
+
+            <!-- Map legend -->
+            <div class="map-legend mb-2">
+                <span><span class="dot dot-green"></span> Has {{ drug_query|default:"medicine" }} in stock</span>
+                <span><span class="dot dot-grey"></span> Other pharmacies</span>
+            </div>
+
+            <!-- Leaflet map -->
+            <div id="pharmacy-map"></div>
+
+            <!-- Results list -->
+            <div class="card results-card">
+                <div class="card-header">
+                    {% if drug_query %}
+                        <i class="fas fa-pills mr-1"></i> Pharmacies stocking "{{ drug_query }}"
+                    {% else %}
+                        <i class="fas fa-store mr-1"></i> All nearby pharmacies
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if has_results %}
+                        <div class="status-badge mb-3">
+                            <i class="fas fa-check-circle mr-1"></i> {{ pharmacies|length }} pharmacie{{ pharmacies|length|pluralize }} found
+                        </div>
+                        {% for pharmacy in pharmacies %}
+                            <div class="pharmacy-result">
+                                <h5>
+                                    <i class="fas fa-clinic-medical mr-1" style="color:#12b5a6;"></i>
+                                    {{ pharmacy.name }}
+                                    {% if pharmacy.hours == "24 Hours" %}
+                                        <span class="badge badge-24 ml-2" style="font-size:11px;">24 hrs</span>
+                                    {% endif %}
+                                </h5>
+                                <p><i class="fas fa-map-marker-alt mr-1" style="color:#1b405a;"></i>{{ pharmacy.area }}</p>
+                                <p><i class="fas fa-clock mr-1"></i>{{ pharmacy.hours }}
+                                   &nbsp;|&nbsp;
+                                   <i class="fas fa-phone mr-1"></i>{{ pharmacy.phone }}</p>
+                                <p><strong>In stock:</strong>
+                                    {% for med in pharmacy.medicines %}
+                                        <span class="badge badge-pill"
+                                              style="background:{% if drug_query and drug_query|lower in med %}#12b5a6{% else %}#e9ecef{% endif %};
+                                                     color:{% if drug_query and drug_query|lower in med %}#fff{% else %}#495057{% endif %};
+                                                     margin:2px;">{{ med }}</span>
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        {% endfor %}
+
+                    {% elif drug_query %}
+                        <div class="no-results-box">
+                            <strong><i class="fas fa-exclamation-triangle mr-1"></i>No exact stock match found for "{{ drug_query }}".</strong><br>
+                            Try a broader area, check the spelling, or use
+                            <a href="{% url 'alternative_drugs' %}?drug={{ drug_query|urlencode }}">Alternative Drugs</a>
+                            to find a substitute. You can also ask the AI assistant for a recommendation.
+                        </div>
+                    {% else %}
+                        <p class="text-muted">All {{ pharmacies|length|default:"8" }} pharmacies are shown on the map. Search a medicine to filter by stock.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar tips -->
+        <div class="col-lg-4 mb-4">
+            <div class="card tip-card mb-4">
+                <div class="card-header"><i class="fas fa-info-circle mr-1"></i> How it works</div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        Green markers on the map show pharmacies that have your medicine in stock.
+                        Grey markers are other nearby pharmacies. Click any marker for details.
+                        Results stay on this page — no redirect to Google Maps.
+                    </p>
+                </div>
+            </div>
+            <div class="card tip-card mb-4">
+                <div class="card-header"><i class="fas fa-lightbulb mr-1"></i> Good to know</div>
+                <div class="card-body">
+                    <ul class="mb-0 pl-3" style="color:#516678;">
+                        <li>Check the active ingredient before buying a substitute.</li>
+                        <li>Confirm dosage and interactions with a pharmacist.</li>
+                        <li>Use the AI assistant for a plain-language explanation.</li>
+                        <li>24-hour pharmacies are marked with a blue badge.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card tip-card">
+                <div class="card-header"><i class="fas fa-pills mr-1"></i> Need an alternative?</div>
+                <div class="card-body">
+                    <p class="mb-3" style="color:#516678;">
+                        If your medicine is out of stock, check safer substitutes first.
+                    </p>
+                    <a class="btn btn-block pharmacy-actions"
+                       href="{% url 'alternative_drugs' %}{% if drug_query %}?drug={{ drug_query|urlencode }}{% endif %}">
+                        <i class="fas fa-exchange-alt mr-1"></i> Find alternatives
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+(function () {
+    // Data injected from Django view
+    var ALL_PHARMACIES  = {{ all_pharmacies_json|safe }};
+    var RESULT_PHARMACIES = {{ results_json|safe }};
+    var drugQuery = "{{ drug_query|escapejs }}".trim().toLowerCase();
+    var hasSearch = drugQuery.length > 0;
+
+    // Build a set of result pharmacy names for quick lookup
+    var resultNames = new Set(RESULT_PHARMACIES.map(function(p){ return p.name; }));
+
+    // Centre map on the cluster of pharmacies
+    var centerLat = 30.7320, centerLng = 76.7790, zoom = 14;
+
+    var map = L.map('pharmacy-map').setView([centerLat, centerLng], zoom);
+
+    // OpenStreetMap tiles — free, no API key needed
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Custom marker icons
+    function makeIcon(color) {
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="42">'
+            + '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24S24 21 24 12C24 5.4 18.6 0 12 0z" fill="' + color + '"/>'
+            + '<circle cx="12" cy="12" r="5" fill="#fff"/>'
+            + '</svg>';
+        return L.divIcon({
+            html: svg,
+            className: '',
+            iconSize: [28, 42],
+            iconAnchor: [14, 42],
+            popupAnchor: [0, -40],
+        });
+    }
+
+    var greenIcon = makeIcon('#12b5a6');
+    var greyIcon  = makeIcon('#adb5bd');
+    var redIcon   = makeIcon('#e74c3c');
+
+    ALL_PHARMACIES.forEach(function (p) {
+        var isMatch = hasSearch ? resultNames.has(p.name) : true;
+        var icon = hasSearch ? (isMatch ? greenIcon : greyIcon) : redIcon;
+
+        var stockList = p.medicines.map(function(m) {
+            var highlight = hasSearch && m.toLowerCase().indexOf(drugQuery) !== -1;
+            return '<span style="display:inline-block;margin:2px 3px;padding:2px 7px;border-radius:999px;'
+                + 'background:' + (highlight ? '#12b5a6' : '#e9ecef') + ';'
+                + 'color:' + (highlight ? '#fff' : '#495057') + ';font-size:12px;">' + m + '</span>';
+        }).join('');
+
+        var popup = '<div style="min-width:200px;">'
+            + '<strong style="color:#1b405a;font-size:15px;">' + p.name + '</strong><br>'
+            + '<span style="color:#516678;font-size:13px;"><i>📍 ' + p.area + '</i></span><br>'
+            + '<span style="font-size:13px;">🕐 ' + p.hours + '</span><br>'
+            + '<span style="font-size:13px;">📞 ' + p.phone + '</span><br>'
+            + '<div style="margin-top:6px;"><strong style="font-size:12px;">In stock:</strong><br>' + stockList + '</div>'
+            + '</div>';
+
+        L.marker([p.lat, p.lng], { icon: icon })
+            .addTo(map)
+            .bindPopup(popup);
+    });
+
+    // If we have results, fit map to show them
+    if (RESULT_PHARMACIES.length > 0) {
+        var bounds = RESULT_PHARMACIES.map(function(p){ return [p.lat, p.lng]; });
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+    }
+})();
+</script>
+{% endblock %}

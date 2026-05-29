@@ -1,0 +1,179 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+<style>
+    body {
+        background: linear-gradient(180deg, #f5f8fc 0%, #eaf0f7 100%);
+        color: #13293d;
+    }
+
+    .hero {
+        padding: 55px 20px 30px;
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-weight: 800;
+        color: #1b405a;
+    }
+
+    .hero p {
+        color: #5d7286;
+        max-width: 760px;
+        margin: 12px auto 0;
+    }
+
+    .search-card,
+    .results-card,
+    .tips-card {
+        border: 0;
+        border-radius: 20px;
+        box-shadow: 0 16px 36px rgba(27, 64, 90, 0.12);
+        overflow: hidden;
+    }
+
+    .search-card .card-header,
+    .results-card .card-header,
+    .tips-card .card-header {
+        background: linear-gradient(135deg, #1b405a, #12b5a6);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .search-card .btn,
+    .quick-chip {
+        background: linear-gradient(135deg, #1b405a, #0ea5e9);
+        color: #fff;
+        border: 0;
+        font-weight: 700;
+        border-radius: 12px;
+    }
+
+    .search-card .btn:hover,
+    .quick-chip:hover {
+        color: #fff;
+        filter: brightness(1.05);
+    }
+
+    .alternative-item {
+        background: #fff;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 24px rgba(27, 64, 90, 0.08);
+    }
+
+    .alternative-item h5 {
+        font-weight: 800;
+        color: #1b405a;
+        margin-bottom: 8px;
+    }
+
+    .alternative-item p,
+    .results-card p,
+    .tips-card li {
+        color: #516678;
+    }
+
+    .pill-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(27, 64, 90, 0.08);
+        color: #1b405a;
+        font-weight: 700;
+        font-size: 13px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="hero">
+        <h1>Alternative Drugs</h1>
+        <p>Search a medicine name to see safer or common alternatives. If the drug is not in the database, FirstCall shows a curated fallback list so the page still works in a demo.</p>
+    </div>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card search-card">
+                <div class="card-header">Find a medicine</div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'alternative_drugs' %}">
+                        <div class="form-row align-items-center">
+                            <div class="col-md-8 mb-3 mb-md-0">
+                                <input type="text" class="form-control form-control-lg" name="drug" value="{{ query }}" placeholder="Enter a medicine name, like paracetamol or ibuprofen">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-block btn-lg">Search alternatives</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="pill-row">
+                        {% for item in suggested_queries %}
+                            <a class="quick-chip btn btn-sm px-3 py-2" href="{% url 'alternative_drugs' %}?drug={{ item|urlencode }}">{{ item }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-lg-8 mb-4">
+            <div class="card results-card">
+                <div class="card-header">
+                    {% if query %}
+                        Results for {{ query }}
+                    {% else %}
+                        Search results
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if has_results %}
+                        <div class="status-badge mb-3">{{ alternatives|length }} suggestions found</div>
+                        {% for item in alternatives %}
+                            <div class="alternative-item">
+                                <h5>{{ item }}</h5>
+                                <p>Use this as a discussion starter with a pharmacist or doctor. Check allergies, current medicines, age, and any medical conditions before switching products.</p>
+                            </div>
+                        {% endfor %}
+                    {% elif query %}
+                        <p><strong>No exact match found.</strong> Use the suggestions below or ask FirstCall AI Assistant for guidance. You can also add the medicine to the database later for a richer demo.</p>
+                    {% else %}
+                        <p>Search a medicine to see alternatives. Popular examples are shown on the right.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card tips-card mb-4">
+                <div class="card-header">Safety tips</div>
+                <div class="card-body">
+                    <ul class="mb-0 pl-3">
+                        <li>Do not swap prescription drugs without professional advice.</li>
+                        <li>Compare the active ingredient first, not only the brand name.</li>
+                        <li>Check allergies and interactions before taking any alternative.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card tips-card">
+                <div class="card-header">Need more help?</div>
+                <div class="card-body">
+                    <p class="mb-3">Open the FirstCall AI Assistant from the floating button to ask about a drug in plain language.</p>
+                    <a class="btn btn-block" href="{% url 'contact' %}">Contact support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

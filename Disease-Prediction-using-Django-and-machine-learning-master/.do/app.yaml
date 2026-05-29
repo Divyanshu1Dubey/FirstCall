@@ -1,0 +1,75 @@
+name: firstcall-disease-prediction
+region: blr   # Bangalore — closest to India. Change to nyc / lon / sgp if needed.
+
+services:
+  - name: web
+    # ── Source ──────────────────────────────────────────────────────────────
+    github:
+      repo: Divyanshu1Dubey/FirstCall
+      branch: main
+      deploy_on_push: true
+
+    # ── Build & run ─────────────────────────────────────────────────────────
+    build_command: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate --noinput
+    run_command: gunicorn disease_prediction.wsgi --workers 2 --threads 2 --timeout 120 --bind 0.0.0.0:$PORT
+
+    source_dir: Disease-Prediction-using-Django-and-machine-learning-master
+    environment_slug: python
+
+    # ── Instance size ────────────────────────────────────────────────────────
+    instance_size_slug: basic-xxs   # $5/month — upgrade to basic-xs ($10) for more RAM
+    instance_count: 1
+
+    # ── HTTP port ────────────────────────────────────────────────────────────
+    http_port: 8080
+
+    # ── Health check ─────────────────────────────────────────────────────────
+    health_check:
+      http_path: /
+
+    # ── Environment variables ────────────────────────────────────────────────
+    envs:
+      - key: SECRET_KEY
+        value: "CHANGE_THIS_TO_A_LONG_RANDOM_STRING_50_CHARS"
+        type: SECRET
+
+      - key: DEBUG
+        value: "False"
+
+      - key: ALLOWED_HOSTS
+        value: "${APP_DOMAIN}"   # DigitalOcean fills this automatically
+
+      - key: DJANGO_SETTINGS_MODULE
+        value: disease_prediction.settings
+
+      # AI API keys
+      - key: MISTRAL_API_KEY
+        value: "PRodJoKYKf57GEf6zWmRcRs7AU4EgCA4"
+        type: SECRET
+
+      - key: GROQ_API_KEY
+        value: "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"
+        type: SECRET
+
+      - key: GEMINI_API_KEY
+        value: "AIzaSyDZM9XgQtbvy3ygDnnYnHiSlFdT4jaPMjc"
+        type: SECRET
+
+      - key: OPENROUTER_API_KEY
+        value: "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"
+        type: SECRET
+
+      # DATABASE_URL is injected automatically when you attach a Postgres DB below
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${firstcall-db.DATABASE_URL}
+
+databases:
+  - name: firstcall-db
+    engine: PG          # PostgreSQL
+    version: "16"
+    size: db-s-dev-database   # free dev DB — upgrade to db-s-1vcpu-1gb ($15/mo) for production
+    num_nodes: 1
